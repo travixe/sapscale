@@ -9,8 +9,14 @@ interface Seat {
   status: 'Available' | 'Booked' | 'Hold' | 'Blocked';
   passenger?: {
     name: string;
+    fullName: string;
     email: string;
     phone: string;
+    nationality: string;
+    passportNumber: string;
+    identificationNumber: string;
+    bookingReference: string;
+    bookingDate: string;
   };
   holdExpiry?: string;
 }
@@ -39,6 +45,8 @@ export const FlightBooking: React.FC = () => {
 
   const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
   const [showSeatMap, setShowSeatMap] = useState(false);
+  const [selectedSeat, setSelectedSeat] = useState<Seat | null>(null);
+  const [showPassengerDetails, setShowPassengerDetails] = useState(false);
   
   // Generate seat map for demonstration
   const generateSeats = (flightId: string): Seat[] => {
@@ -59,8 +67,14 @@ export const FlightBooking: React.FC = () => {
           status = 'Booked';
           passenger = {
             name: `Passenger ${row}${letter}`,
+            fullName: `John ${row} Smith ${letter}`,
             email: `passenger${row}${letter}@email.com`,
             phone: '+1-555-0123',
+            nationality: ['American', 'British', 'Canadian', 'German', 'French'][Math.floor(Math.random() * 5)],
+            passportNumber: `P${Math.random().toString().substr(2, 8)}`,
+            identificationNumber: `ID${Math.random().toString().substr(2, 9)}`,
+            bookingReference: `AA${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+            bookingDate: '2024-02-10',
           };
         } else if (random < 0.5) {
           status = 'Hold';
@@ -144,6 +158,13 @@ export const FlightBooking: React.FC = () => {
       case 'Business': return 'bg-blue-50';
       case 'Economy': return 'bg-gray-50';
       default: return 'bg-gray-50';
+    }
+  };
+
+  const handleSeatClick = (seat: Seat) => {
+    if (seat.status === 'Booked' && seat.passenger) {
+      setSelectedSeat(seat);
+      setShowPassengerDetails(true);
     }
   };
 
@@ -392,7 +413,8 @@ export const FlightBooking: React.FC = () => {
                                   <div
                                     key={seat.id}
                                     className={`w-8 h-8 border-2 rounded text-xs flex items-center justify-center font-medium cursor-pointer hover:shadow-md transition-shadow ${getSeatColor(seat)}`}
-                                    title={seat.passenger ? `${seat.passenger.name} - ${seat.passenger.email}` : `${seat.row}${seat.letter} - ${seat.status}`}
+                                    title={seat.passenger ? `${seat.passenger.fullName} - ${seat.passenger.email}` : `${seat.row}${seat.letter} - ${seat.status}`}
+                                    onClick={() => handleSeatClick(seat)}
                                   >
                                     {seat.letter}
                                   </div>
@@ -404,7 +426,8 @@ export const FlightBooking: React.FC = () => {
                                   <div
                                     key={seat.id}
                                     className={`w-8 h-8 border-2 rounded text-xs flex items-center justify-center font-medium cursor-pointer hover:shadow-md transition-shadow ${getSeatColor(seat)}`}
-                                    title={seat.passenger ? `${seat.passenger.name} - ${seat.passenger.email}` : `${seat.row}${seat.letter} - ${seat.status}`}
+                                    title={seat.passenger ? `${seat.passenger.fullName} - ${seat.passenger.email}` : `${seat.row}${seat.letter} - ${seat.status}`}
+                                    onClick={() => handleSeatClick(seat)}
                                   >
                                     {seat.letter}
                                   </div>
@@ -417,6 +440,129 @@ export const FlightBooking: React.FC = () => {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Passenger Details Modal */}
+      {showPassengerDetails && selectedSeat && selectedSeat.passenger && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Passenger Details - Seat {selectedSeat.row}{selectedSeat.letter}
+                  </h3>
+                  <p className="text-gray-600">
+                    {selectedFlight?.flightNumber} | {selectedSeat.class} Class
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowPassengerDetails(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Personal Information */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                    Personal Information
+                  </h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedSeat.passenger.fullName}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Nationality</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedSeat.passenger.nationality}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedSeat.passenger.email}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedSeat.passenger.phone}</p>
+                  </div>
+                </div>
+
+                {/* Travel Documents & Booking */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                    Travel Documents & Booking
+                  </h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Passport Number</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded font-mono">{selectedSeat.passenger.passportNumber}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Identification Number</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded font-mono">{selectedSeat.passenger.identificationNumber}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Booking Reference</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded font-mono">{selectedSeat.passenger.bookingReference}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Booking Date</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded">
+                      {new Date(selectedSeat.passenger.bookingDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seat Information */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Seat Information</h4>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-gray-700">Seat:</span>
+                    <span className="ml-2 text-gray-900">{selectedSeat.row}{selectedSeat.letter}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700">Class:</span>
+                    <span className="ml-2 text-gray-900">{selectedSeat.class}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700">Status:</span>
+                    <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${getSeatColor(selectedSeat)}`}>
+                      {selectedSeat.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowPassengerDetails(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Close
+                </button>
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  Edit Booking
+                </button>
               </div>
             </div>
           </div>

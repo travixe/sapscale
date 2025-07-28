@@ -15,6 +15,7 @@ import {
   FlexBoxJustifyContent,
   FlexBoxAlignItems,
   AnalyticalTable,
+  Badge,
   ObjectStatus,
   ValueState,
   Dialog,
@@ -146,7 +147,7 @@ export const AircraftMaintenance: React.FC = () => {
         <Text className="text-sm text-gray-600">{record.aircraft.split(' ').slice(1).join(' ')}</Text>
       </FlexBox>
     ),
-    type: <ui5-badge color-scheme="6">{record.type}</ui5-badge>,
+    type: <Badge colorScheme="6">{record.type}</Badge>,
     description: record.description,
     priority: <ObjectStatus state={getPriorityState(record.priority)}>{record.priority}</ObjectStatus>,
     status: (

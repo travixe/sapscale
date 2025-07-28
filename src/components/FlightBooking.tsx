@@ -128,7 +128,7 @@ export const FlightBooking: React.FC = () => {
       </div>
 
       {/* Flight Results */}
-      <div className="space-y-4">
+      <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
         {flights.map((flight) => (
           <div key={flight.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">

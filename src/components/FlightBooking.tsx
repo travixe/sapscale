@@ -1,32 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  Card,
-  CardHeader,
-  Title,
-  Text,
-  Button,
-  Input,
-  DatePicker,
-  FlexBox,
-  FlexBoxDirection,
-  FlexBoxJustifyContent,
-  FlexBoxAlignItems,
-  AnalyticalTable,
-  Badge,
-  ObjectStatus,
-  ValueState,
-  Dialog,
-  Bar,
-  Panel,
-  Form,
-  FormGroup,
-  FormItem,
-  Label,
-  MessageStrip,
-  MessageStripDesign,
-  ProgressIndicator,
-  Icon
-} from '@ui5/webcomponents-react';
+import { Search, MapPin, Calendar, Users, Eye, UserCheck, Clock, AlertCircle } from 'lucide-react';
 
 interface Seat {
   id: string;
@@ -169,63 +142,11 @@ export const FlightBooking: React.FC = () => {
     },
   ];
 
-  const flightColumns = [
-    { Header: 'Flight', accessor: 'flightInfo', width: 200 },
-    { Header: 'Route', accessor: 'route', width: 200 },
-    { Header: 'Schedule', accessor: 'schedule', width: 200 },
-    { Header: 'Aircraft', accessor: 'aircraft', width: 150 },
-    { Header: 'Occupancy', accessor: 'occupancy', width: 200 },
-    { Header: 'Actions', accessor: 'actions', width: 150 },
-  ];
-
-  const flightData = flights.map(flight => ({
-    flightInfo: (
-      <FlexBox direction={FlexBoxDirection.Column}>
-        <Text className="font-semibold">{flight.flightNumber}</Text>
-        <Text className="text-sm text-gray-600">{flight.airline}</Text>
-      </FlexBox>
-    ),
-    route: (
-      <FlexBox direction={FlexBoxDirection.Column}>
-        <Text>{flight.departure.city} → {flight.arrival.city}</Text>
-        <Text className="text-sm text-gray-600">{flight.departure.airport} - {flight.arrival.airport}</Text>
-      </FlexBox>
-    ),
-    schedule: (
-      <FlexBox direction={FlexBoxDirection.Column}>
-        <Text>{flight.departure.time} - {flight.arrival.time}</Text>
-        <Text className="text-sm text-gray-600">{flight.duration}</Text>
-      </FlexBox>
-    ),
-    aircraft: flight.aircraft,
-    occupancy: (
-      <FlexBox direction={FlexBoxDirection.Column} className="gap-1">
-        <Text className="text-sm">{flight.bookedSeats}/{flight.totalSeats} seats</Text>
-        <ProgressIndicator 
-          value={(flight.bookedSeats / flight.totalSeats) * 100}
-          valueState={flight.bookedSeats / flight.totalSeats > 0.8 ? ValueState.Error : ValueState.Success}
-        />
-      </FlexBox>
-    ),
-    actions: (
-      <Button 
-        design="Emphasized"
-        icon="show"
-        onClick={() => {
-          setSelectedFlight(flight);
-          setShowSeatMap(true);
-        }}
-      >
-        View Seats
-      </Button>
-    ),
-  }));
-
   const getSeatColor = (seat: Seat) => {
     switch (seat.status) {
-      case 'Available': return 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200';
-      case 'Booked': return 'bg-red-100 border-red-300 text-red-800 hover:bg-red-200 cursor-pointer';
-      case 'Hold': return 'bg-yellow-100 border-yellow-300 text-yellow-800 hover:bg-yellow-200';
+      case 'Available': return 'bg-green-100 border-green-300 text-green-800';
+      case 'Booked': return 'bg-red-100 border-red-300 text-red-800';
+      case 'Hold': return 'bg-yellow-100 border-yellow-300 text-yellow-800';
       case 'Blocked': return 'bg-gray-100 border-gray-300 text-gray-800';
       default: return 'bg-gray-100 border-gray-300 text-gray-800';
     }
@@ -233,10 +154,10 @@ export const FlightBooking: React.FC = () => {
 
   const getClassColor = (seatClass: string) => {
     switch (seatClass) {
-      case 'First': return 'bg-purple-50 border-purple-200';
-      case 'Business': return 'bg-blue-50 border-blue-200';
-      case 'Economy': return 'bg-gray-50 border-gray-200';
-      default: return 'bg-gray-50 border-gray-200';
+      case 'First': return 'bg-purple-50';
+      case 'Business': return 'bg-blue-50';
+      case 'Economy': return 'bg-gray-50';
+      default: return 'bg-gray-50';
     }
   };
 
@@ -248,134 +169,226 @@ export const FlightBooking: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-y-auto p-6 bg-gray-50">
-      <FlexBox direction={FlexBoxDirection.Column} className="max-w-7xl mx-auto">
-        {/* Header */}
-        <FlexBox direction={FlexBoxDirection.Column} className="mb-8">
-          <Title level="H1" className="text-3xl font-bold mb-2">Flight Booking Management</Title>
-          <Text className="text-gray-600">Monitor seat availability and manage passenger bookings</Text>
-        </FlexBox>
+    <div className="p-6 max-w-7xl mx-auto h-full overflow-y-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Flight Booking Management</h1>
+        <p className="text-gray-600">Monitor seat availability and manage passenger bookings</p>
+      </div>
 
-        {/* Search Form */}
-        <Card className="mb-8">
-          <CardHeader titleText="Search Flights" />
-          <div className="p-6">
-            <Form>
-              <FormGroup titleText="Flight Search">
-                <FlexBox direction={FlexBoxDirection.Row} className="gap-4" wrap="Wrap">
-                  <FormItem labelContent={<Label>Flight Number</Label>}>
-                    <Input
-                      value={searchParams.flightNumber}
-                      onInput={(e) => setSearchParams({ ...searchParams, flightNumber: e.target.value })}
-                      placeholder="e.g., AA101"
-                    />
-                  </FormItem>
-                  
-                  <FormItem labelContent={<Label>Route</Label>}>
-                    <Input
-                      value={searchParams.route}
-                      onInput={(e) => setSearchParams({ ...searchParams, route: e.target.value })}
-                      placeholder="e.g., JFK-LAX"
-                    />
-                  </FormItem>
-                  
-                  <FormItem labelContent={<Label>Date</Label>}>
-                    <DatePicker
-                      value={searchParams.date}
-                      onChange={(e) => setSearchParams({ ...searchParams, date: e.target.value })}
-                    />
-                  </FormItem>
-                  
-                  <FormItem>
-                    <Button design="Emphasized" icon="search">Search Flights</Button>
-                  </FormItem>
-                </FlexBox>
-              </FormGroup>
-            </Form>
+      {/* Search Form */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Flight Number</label>
+            <input
+              type="text"
+              value={searchParams.flightNumber}
+              onChange={(e) => setSearchParams({ ...searchParams, flightNumber: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="e.g., AA101"
+            />
           </div>
-        </Card>
-
-        {/* Flight Results */}
-        <Panel headerText="Flight Results" className="mb-6">
-          <AnalyticalTable
-            columns={flightColumns}
-            data={flightData}
-            visibleRows={10}
-            noDataText="No flights found"
-            className="w-full"
-          />
-        </Panel>
-
-        {/* Seat Statistics */}
-        <FlexBox direction={FlexBoxDirection.Row} className="gap-6 mb-6" wrap="Wrap">
-          <Card className="flex-1 min-w-48">
-            <CardHeader 
-              titleText="Available Seats"
-              subtitleText={flights.reduce((sum, f) => sum + f.availableSeats, 0).toString()}
-              action={<Icon name="accept" className="text-green-600" />}
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Route</label>
+            <input
+              type="text"
+              value={searchParams.route}
+              onChange={(e) => setSearchParams({ ...searchParams, route: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="e.g., JFK-LAX"
             />
-          </Card>
-          <Card className="flex-1 min-w-48">
-            <CardHeader 
-              titleText="Booked Seats"
-              subtitleText={flights.reduce((sum, f) => sum + f.bookedSeats, 0).toString()}
-              action={<Icon name="decline" className="text-red-600" />}
-            />
-          </Card>
-          <Card className="flex-1 min-w-48">
-            <CardHeader 
-              titleText="On Hold"
-              subtitleText={flights.reduce((sum, f) => sum + f.holdSeats, 0).toString()}
-              action={<Icon name="pending" className="text-yellow-600" />}
-            />
-          </Card>
-          <Card className="flex-1 min-w-48">
-            <CardHeader 
-              titleText="Total Capacity"
-              subtitleText={flights.reduce((sum, f) => sum + f.totalSeats, 0).toString()}
-              action={<Icon name="flight" className="text-blue-600" />}
-            />
-          </Card>
-        </FlexBox>
-      </FlexBox>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+              <input
+                type="date"
+                value={searchParams.date}
+                onChange={(e) => setSearchParams({ ...searchParams, date: e.target.value })}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+          
+          <div className="flex items-end">
+            <button className="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+              <Search className="w-5 h-5" />
+              <span>Search Flights</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-      {/* Seat Map Dialog */}
-      <Dialog
-        open={showSeatMap}
-        headerText={`Seat Map - ${selectedFlight?.flightNumber}`}
-        onAfterClose={() => setShowSeatMap(false)}
-        className="w-full max-w-6xl"
-        resizable
-      >
-        <div className="p-6">
-          {selectedFlight && (
-            <>
-              <MessageStrip design={MessageStripDesign.Information} className="mb-4">
-                {selectedFlight.departure.city} → {selectedFlight.arrival.city} | {selectedFlight.aircraft}
-              </MessageStrip>
+      {/* Flight Results */}
+      <div className="space-y-4">
+        {flights.map((flight) => (
+          <div key={flight.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-8">
+                <div>
+                  <p className="text-sm text-gray-600">{flight.airline}</p>
+                  <p className="font-semibold text-gray-900 text-lg">{flight.flightNumber}</p>
+                  <p className="text-sm text-gray-600">{flight.aircraft}</p>
+                </div>
+                
+                <div className="flex items-center space-x-6">
+                  <div className="text-center">
+                    <p className="text-xl font-bold text-gray-900">{flight.departure.time}</p>
+                    <p className="text-sm text-gray-600">{flight.departure.city}</p>
+                    <p className="text-xs text-gray-500">{flight.departure.airport}</p>
+                  </div>
+                  
+                  <div className="flex-1 relative">
+                    <div className="border-t-2 border-gray-300 w-24"></div>
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-2">
+                      <p className="text-xs text-gray-500">{flight.duration}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center">
+                    <p className="text-xl font-bold text-gray-900">{flight.arrival.time}</p>
+                    <p className="text-sm text-gray-600">{flight.arrival.city}</p>
+                    <p className="text-xs text-gray-500">{flight.arrival.airport}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-right">
+                <button
+                  onClick={() => {
+                    setSelectedFlight(flight);
+                    setShowSeatMap(true);
+                  }}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>View Seat Map</span>
+                </button>
+              </div>
+            </div>
 
+            {/* Seat Statistics */}
+            <div className="grid grid-cols-4 gap-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <Users className="w-5 h-5 text-gray-600" />
+                  <div>
+                    <p className="text-sm text-gray-600">Total Seats</p>
+                    <p className="text-xl font-bold text-gray-900">{flight.totalSeats}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-red-50 p-4 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <UserCheck className="w-5 h-5 text-red-600" />
+                  <div>
+                    <p className="text-sm text-red-600">Booked</p>
+                    <p className="text-xl font-bold text-red-900">{flight.bookedSeats}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-yellow-50 p-4 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-5 h-5 text-yellow-600" />
+                  <div>
+                    <p className="text-sm text-yellow-600">On Hold</p>
+                    <p className="text-xl font-bold text-yellow-900">{flight.holdSeats}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-green-50 p-4 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <AlertCircle className="w-5 h-5 text-green-600" />
+                  <div>
+                    <p className="text-sm text-green-600">Available</p>
+                    <p className="text-xl font-bold text-green-900">{flight.availableSeats}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Occupancy Bar */}
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Seat Occupancy</span>
+                <span className="text-sm text-gray-600">
+                  {Math.round((flight.bookedSeats / flight.totalSeats) * 100)}% occupied
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="flex h-3 rounded-full overflow-hidden">
+                  <div
+                    className="bg-red-500"
+                    style={{ width: `${(flight.bookedSeats / flight.totalSeats) * 100}%` }}
+                  ></div>
+                  <div
+                    className="bg-yellow-500"
+                    style={{ width: `${(flight.holdSeats / flight.totalSeats) * 100}%` }}
+                  ></div>
+                  <div
+                    className="bg-green-500"
+                    style={{ width: `${(flight.availableSeats / flight.totalSeats) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Seat Map Modal */}
+      {showSeatMap && selectedFlight && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-6xl w-full max-h-screen overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Seat Map - {selectedFlight.flightNumber}
+                  </h3>
+                  <p className="text-gray-600">
+                    {selectedFlight.departure.city} → {selectedFlight.arrival.city} | {selectedFlight.aircraft}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowSeatMap(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
               {/* Legend */}
-              <FlexBox justifyContent={FlexBoxJustifyContent.Center} className="mb-6 p-4 bg-gray-50 rounded-lg gap-6" wrap="Wrap">
-                <FlexBox alignItems={FlexBoxAlignItems.Center} className="gap-2">
+              <div className="flex items-center justify-center space-x-6 mb-6 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-                  <Text>Available</Text>
-                </FlexBox>
-                <FlexBox alignItems={FlexBoxAlignItems.Center} className="gap-2">
+                  <span className="text-sm">Available</span>
+                </div>
+                <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 bg-red-100 border border-red-300 rounded"></div>
-                  <Text>Booked</Text>
-                </FlexBox>
-                <FlexBox alignItems={FlexBoxAlignItems.Center} className="gap-2">
+                  <span className="text-sm">Booked</span>
+                </div>
+                <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div>
-                  <Text>On Hold</Text>
-                </FlexBox>
-                <FlexBox alignItems={FlexBoxAlignItems.Center} className="gap-2">
+                  <span className="text-sm">On Hold</span>
+                </div>
+                <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 bg-gray-100 border border-gray-300 rounded"></div>
-                  <Text>Blocked</Text>
-                </FlexBox>
-              </FlexBox>
+                  <span className="text-sm">Blocked</span>
+                </div>
+              </div>
 
               {/* Seat Map */}
               <div className="max-w-2xl mx-auto">
+                {/* Class Sections */}
                 {['First', 'Business', 'Economy'].map((seatClass) => {
                   const classSeats = selectedFlight.seats.filter(seat => seat.class === seatClass);
                   const rows = [...new Set(classSeats.map(seat => seat.row))].sort((a, b) => a - b);
@@ -383,42 +396,44 @@ export const FlightBooking: React.FC = () => {
                   if (rows.length === 0) return null;
                   
                   return (
-                    <div key={seatClass} className={`mb-6 p-4 rounded-lg border-2 ${getClassColor(seatClass)}`}>
-                      <Title level="H4" className="text-center mb-4">{seatClass} Class</Title>
+                    <div key={seatClass} className={`mb-6 p-4 rounded-lg ${getClassColor(seatClass)}`}>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+                        {seatClass} Class
+                      </h4>
                       <div className="space-y-2">
                         {rows.map(row => {
                           const rowSeats = classSeats.filter(seat => seat.row === row);
                           return (
-                            <FlexBox key={row} alignItems={FlexBoxAlignItems.Center} justifyContent={FlexBoxJustifyContent.Center} className="gap-2">
+                            <div key={row} className="flex items-center justify-center space-x-2">
                               <div className="w-8 text-center text-sm font-medium text-gray-600">
                                 {row}
                               </div>
-                              <FlexBox className="gap-1">
+                              <div className="flex space-x-1">
                                 {rowSeats.slice(0, 3).map(seat => (
                                   <div
                                     key={seat.id}
-                                    className={`w-8 h-8 border-2 rounded text-xs flex items-center justify-center font-medium transition-all ${getSeatColor(seat)}`}
+                                    className={`w-8 h-8 border-2 rounded text-xs flex items-center justify-center font-medium cursor-pointer hover:shadow-md transition-shadow ${getSeatColor(seat)}`}
                                     title={seat.passenger ? `${seat.passenger.fullName} - ${seat.passenger.email}` : `${seat.row}${seat.letter} - ${seat.status}`}
                                     onClick={() => handleSeatClick(seat)}
                                   >
                                     {seat.letter}
                                   </div>
                                 ))}
-                              </FlexBox>
+                              </div>
                               <div className="w-8"></div> {/* Aisle */}
-                              <FlexBox className="gap-1">
+                              <div className="flex space-x-1">
                                 {rowSeats.slice(3, 6).map(seat => (
                                   <div
                                     key={seat.id}
-                                    className={`w-8 h-8 border-2 rounded text-xs flex items-center justify-center font-medium transition-all ${getSeatColor(seat)}`}
+                                    className={`w-8 h-8 border-2 rounded text-xs flex items-center justify-center font-medium cursor-pointer hover:shadow-md transition-shadow ${getSeatColor(seat)}`}
                                     title={seat.passenger ? `${seat.passenger.fullName} - ${seat.passenger.email}` : `${seat.row}${seat.letter} - ${seat.status}`}
                                     onClick={() => handleSeatClick(seat)}
                                   >
                                     {seat.letter}
                                   </div>
                                 ))}
-                              </FlexBox>
-                            </FlexBox>
+                              </div>
+                            </div>
                           );
                         })}
                       </div>
@@ -426,100 +441,133 @@ export const FlightBooking: React.FC = () => {
                   );
                 })}
               </div>
-            </>
-          )}
+            </div>
+          </div>
         </div>
-        <Bar
-          endContent={
-            <Button onClick={() => setShowSeatMap(false)}>Close</Button>
-          }
-        />
-      </Dialog>
+      )}
 
-      {/* Passenger Details Dialog */}
-      <Dialog
-        open={showPassengerDetails}
-        headerText={`Passenger Details - Seat ${selectedSeat?.row}${selectedSeat?.letter}`}
-        onAfterClose={() => setShowPassengerDetails(false)}
-        className="w-full max-w-2xl"
-        resizable
-      >
-        <div className="p-6">
-          {selectedSeat && selectedSeat.passenger && (
-            <>
-              <MessageStrip design={MessageStripDesign.Information} className="mb-4">
-                {selectedFlight?.flightNumber} | {selectedSeat.class} Class
-              </MessageStrip>
+      {/* Passenger Details Modal */}
+      {showPassengerDetails && selectedSeat && selectedSeat.passenger && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Passenger Details - Seat {selectedSeat.row}{selectedSeat.letter}
+                  </h3>
+                  <p className="text-gray-600">
+                    {selectedFlight?.flightNumber} | {selectedSeat.class} Class
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowPassengerDetails(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
 
-              <Form>
-                <FormGroup titleText="Personal Information">
-                  <FlexBox direction={FlexBoxDirection.Row} className="gap-6" wrap="Wrap">
-                    <FormItem labelContent={<Label>Full Name</Label>}>
-                      <Input value={selectedSeat.passenger.fullName} readonly />
-                    </FormItem>
-                    
-                    <FormItem labelContent={<Label>Nationality</Label>}>
-                      <Input value={selectedSeat.passenger.nationality} readonly />
-                    </FormItem>
-                    
-                    <FormItem labelContent={<Label>Email Address</Label>}>
-                      <Input value={selectedSeat.passenger.email} readonly />
-                    </FormItem>
-                    
-                    <FormItem labelContent={<Label>Phone Number</Label>}>
-                      <Input value={selectedSeat.passenger.phone} readonly />
-                    </FormItem>
-                  </FlexBox>
-                </FormGroup>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Personal Information */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                    Personal Information
+                  </h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedSeat.passenger.fullName}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Nationality</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedSeat.passenger.nationality}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedSeat.passenger.email}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedSeat.passenger.phone}</p>
+                  </div>
+                </div>
 
-                <FormGroup titleText="Travel Documents & Booking">
-                  <FlexBox direction={FlexBoxDirection.Row} className="gap-6" wrap="Wrap">
-                    <FormItem labelContent={<Label>Passport Number</Label>}>
-                      <Input value={selectedSeat.passenger.passportNumber} readonly />
-                    </FormItem>
-                    
-                    <FormItem labelContent={<Label>Identification Number</Label>}>
-                      <Input value={selectedSeat.passenger.identificationNumber} readonly />
-                    </FormItem>
-                    
-                    <FormItem labelContent={<Label>Booking Reference</Label>}>
-                      <Input value={selectedSeat.passenger.bookingReference} readonly />
-                    </FormItem>
-                    
-                    <FormItem labelContent={<Label>Booking Date</Label>}>
-                      <Input value={new Date(selectedSeat.passenger.bookingDate).toLocaleDateString()} readonly />
-                    </FormItem>
-                  </FlexBox>
-                </FormGroup>
+                {/* Travel Documents & Booking */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+                    Travel Documents & Booking
+                  </h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Passport Number</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded font-mono">{selectedSeat.passenger.passportNumber}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Identification Number</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded font-mono">{selectedSeat.passenger.identificationNumber}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Booking Reference</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded font-mono">{selectedSeat.passenger.bookingReference}</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Booking Date</label>
+                    <p className="text-gray-900 bg-gray-50 p-2 rounded">
+                      {new Date(selectedSeat.passenger.bookingDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-                <FormGroup titleText="Seat Information">
-                  <FlexBox direction={FlexBoxDirection.Row} className="gap-6" wrap="Wrap">
-                    <FormItem labelContent={<Label>Seat</Label>}>
-                      <Input value={`${selectedSeat.row}${selectedSeat.letter}`} readonly />
-                    </FormItem>
-                    
-                    <FormItem labelContent={<Label>Class</Label>}>
-                      <Input value={selectedSeat.class} readonly />
-                    </FormItem>
-                    
-                    <FormItem labelContent={<Label>Status</Label>}>
-                      <ObjectStatus state={ValueState.Success}>{selectedSeat.status}</ObjectStatus>
-                    </FormItem>
-                  </FlexBox>
-                </FormGroup>
-              </Form>
-            </>
-          )}
+              {/* Seat Information */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Seat Information</h4>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-gray-700">Seat:</span>
+                    <span className="ml-2 text-gray-900">{selectedSeat.row}{selectedSeat.letter}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700">Class:</span>
+                    <span className="ml-2 text-gray-900">{selectedSeat.class}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700">Status:</span>
+                    <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${getSeatColor(selectedSeat)}`}>
+                      {selectedSeat.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowPassengerDetails(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Close
+                </button>
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  Edit Booking
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <Bar
-          endContent={
-            <FlexBox className="gap-3">
-              <Button onClick={() => setShowPassengerDetails(false)}>Close</Button>
-              <Button design="Emphasized">Edit Booking</Button>
-            </FlexBox>
-          }
-        />
-      </Dialog>
+      )}
     </div>
   );
 };

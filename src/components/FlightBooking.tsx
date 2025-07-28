@@ -203,6 +203,7 @@ export const FlightBooking: React.FC = () => {
           <ui5-badge color-scheme="8">{flight.availableSeats} Available</ui5-badge>
           <ui5-badge color-scheme="1">{flight.bookedSeats} Booked</ui5-badge>
           <ui5-badge color-scheme="3">{flight.holdSeats} Hold</ui5-badge>
+        />
       </FlexBox>
     ),
     actions: (

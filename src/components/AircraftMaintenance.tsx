@@ -1,5 +1,36 @@
 import React, { useState } from 'react';
-import { Plus, AlertTriangle, CheckCircle, Clock, Wrench, Calendar } from 'lucide-react';
+import { 
+  Card,
+  CardHeader,
+  Title,
+  Text,
+  Button,
+  Input,
+  Select,
+  Option,
+  TextArea,
+  DatePicker,
+  FlexBox,
+  FlexBoxDirection,
+  FlexBoxJustifyContent,
+  FlexBoxAlignItems,
+  AnalyticalTable,
+  Badge,
+  ObjectStatus,
+  ValueState,
+  Dialog,
+  Bar,
+  Panel,
+  Form,
+  FormGroup,
+  FormItem,
+  Label,
+  MessageStrip,
+  MessageStripDesign,
+  Icon,
+  FilterBar,
+  FilterGroupItem
+} from '@ui5/webcomponents-react';
 
 interface MaintenanceRecord {
   id: string;
@@ -66,283 +97,237 @@ export const AircraftMaintenance: React.FC = () => {
     },
   ];
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityState = (priority: string): ValueState => {
     switch (priority) {
-      case 'Critical': return 'bg-red-500 text-white';
-      case 'High': return 'bg-red-100 text-red-800';
-      case 'Medium': return 'bg-yellow-100 text-yellow-800';
-      case 'Low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Critical': return ValueState.Error;
+      case 'High': return ValueState.Warning;
+      case 'Medium': return ValueState.Information;
+      case 'Low': return ValueState.Success;
+      default: return ValueState.None;
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusState = (status: string): ValueState => {
     switch (status) {
-      case 'Pending': return 'bg-yellow-100 text-yellow-800';
-      case 'In Progress': return 'bg-blue-100 text-blue-800';
-      case 'Completed': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Pending': return ValueState.Warning;
+      case 'In Progress': return ValueState.Information;
+      case 'Completed': return ValueState.Success;
+      default: return ValueState.None;
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'Pending': return <Clock className="w-4 h-4" />;
-      case 'In Progress': return <Wrench className="w-4 h-4" />;
-      case 'Completed': return <CheckCircle className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
+      case 'Pending': return 'pending';
+      case 'In Progress': return 'in-progress';
+      case 'Completed': return 'accept';
+      default: return 'pending';
     }
   };
+
+  const maintenanceColumns = [
+    { Header: 'Aircraft', accessor: 'aircraft', width: 200 },
+    { Header: 'Type', accessor: 'type', width: 120 },
+    { Header: 'Description', accessor: 'description', width: 250 },
+    { Header: 'Priority', accessor: 'priority', width: 120 },
+    { Header: 'Status', accessor: 'status', width: 150 },
+    { Header: 'Assigned To', accessor: 'assignedTo', width: 150 },
+    { Header: 'Schedule', accessor: 'schedule', width: 150 },
+    { Header: 'Est. Hours', accessor: 'estimatedHours', width: 100 },
+  ];
 
   const filteredRecords = filterStatus === 'All' 
     ? maintenanceRecords 
     : maintenanceRecords.filter(record => record.status === filterStatus);
 
+  const maintenanceData = filteredRecords.map(record => ({
+    aircraft: (
+      <FlexBox direction={FlexBoxDirection.Column}>
+        <Text className="font-semibold">{record.aircraft.split(' ')[0]}</Text>
+        <Text className="text-sm text-gray-600">{record.aircraft.split(' ').slice(1).join(' ')}</Text>
+      </FlexBox>
+    ),
+    type: <Badge colorScheme="6">{record.type}</Badge>,
+    description: record.description,
+    priority: <ObjectStatus state={getPriorityState(record.priority)}>{record.priority}</ObjectStatus>,
+    status: (
+      <FlexBox alignItems={FlexBoxAlignItems.Center} className="gap-2">
+        <Icon name={getStatusIcon(record.status)} />
+        <ObjectStatus state={getStatusState(record.status)}>{record.status}</ObjectStatus>
+      </FlexBox>
+    ),
+    assignedTo: record.assignedTo,
+    schedule: (
+      <FlexBox direction={FlexBoxDirection.Column}>
+        <FlexBox alignItems={FlexBoxAlignItems.Center} className="gap-1">
+          <Icon name="calendar" className="text-gray-400" />
+          <Text className="text-sm">{new Date(record.scheduledDate).toLocaleDateString()}</Text>
+        </FlexBox>
+        {record.completedDate && (
+          <Text className="text-xs text-green-600">
+            Completed: {new Date(record.completedDate).toLocaleDateString()}
+          </Text>
+        )}
+      </FlexBox>
+    ),
+    estimatedHours: `${record.estimatedHours}h`,
+  }));
+
   return (
-    <div className="p-6 max-w-7xl mx-auto h-full overflow-y-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Aircraft Maintenance</h1>
-          <p className="text-gray-600">Track and manage aircraft maintenance schedules</p>
-        </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Add Maintenance</span>
-        </button>
-      </div>
+    <div className="h-full overflow-y-auto p-6 bg-gray-50">
+      <FlexBox direction={FlexBoxDirection.Column} className="max-w-7xl mx-auto">
+        {/* Header */}
+        <FlexBox justifyContent={FlexBoxJustifyContent.SpaceBetween} alignItems={FlexBoxAlignItems.Center} className="mb-8">
+          <FlexBox direction={FlexBoxDirection.Column}>
+            <Title level="H1" className="text-3xl font-bold mb-2">Aircraft Maintenance</Title>
+            <Text className="text-gray-600">Track and manage aircraft maintenance schedules</Text>
+          </FlexBox>
+          <Button
+            design="Emphasized"
+            icon="add"
+            onClick={() => setShowAddModal(true)}
+          >
+            Add Maintenance
+          </Button>
+        </FlexBox>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Pending Tasks</p>
-              <p className="text-2xl font-bold text-yellow-600">
-                {maintenanceRecords.filter(r => r.status === 'Pending').length}
-              </p>
-            </div>
-            <Clock className="w-8 h-8 text-yellow-500" />
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">In Progress</p>
-              <p className="text-2xl font-bold text-blue-600">
-                {maintenanceRecords.filter(r => r.status === 'In Progress').length}
-              </p>
-            </div>
-            <Wrench className="w-8 h-8 text-blue-500" />
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Completed</p>
-              <p className="text-2xl font-bold text-green-600">
-                {maintenanceRecords.filter(r => r.status === 'Completed').length}
-              </p>
-            </div>
-            <CheckCircle className="w-8 h-8 text-green-500" />
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Critical Issues</p>
-              <p className="text-2xl font-bold text-red-600">
-                {maintenanceRecords.filter(r => r.priority === 'Critical').length}
-              </p>
-            </div>
-            <AlertTriangle className="w-8 h-8 text-red-500" />
-          </div>
-        </div>
-      </div>
+        {/* Stats Cards */}
+        <FlexBox direction={FlexBoxDirection.Row} className="gap-6 mb-8" wrap="Wrap">
+          <Card className="flex-1 min-w-64">
+            <CardHeader 
+              titleText="Pending Tasks"
+              subtitleText={maintenanceRecords.filter(r => r.status === 'Pending').length.toString()}
+              action={<Icon name="pending" className="text-yellow-500" />}
+            />
+          </Card>
+          
+          <Card className="flex-1 min-w-64">
+            <CardHeader 
+              titleText="In Progress"
+              subtitleText={maintenanceRecords.filter(r => r.status === 'In Progress').length.toString()}
+              action={<Icon name="in-progress" className="text-blue-500" />}
+            />
+          </Card>
+          
+          <Card className="flex-1 min-w-64">
+            <CardHeader 
+              titleText="Completed"
+              subtitleText={maintenanceRecords.filter(r => r.status === 'Completed').length.toString()}
+              action={<Icon name="accept" className="text-green-500" />}
+            />
+          </Card>
+          
+          <Card className="flex-1 min-w-64">
+            <CardHeader 
+              titleText="Critical Issues"
+              subtitleText={maintenanceRecords.filter(r => r.priority === 'Critical').length.toString()}
+              action={<Icon name="warning" className="text-red-500" />}
+            />
+          </Card>
+        </FlexBox>
 
-      {/* Filter Bar */}
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-6">
-        <div className="flex items-center space-x-4">
-          <span className="text-sm font-medium text-gray-700">Filter by status:</span>
-          {['All', 'Pending', 'In Progress', 'Completed'].map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilterStatus(status)}
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                filterStatus === status
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+        {/* Filter Bar */}
+        <FilterBar className="mb-6">
+          <FilterGroupItem label="Status">
+            <Select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.detail.selectedOption.textContent)}
             >
-              {status}
-            </button>
-          ))}
-        </div>
-      </div>
+              <Option>All</Option>
+              <Option>Pending</Option>
+              <Option>In Progress</Option>
+              <Option>Completed</Option>
+            </Select>
+          </FilterGroupItem>
+        </FilterBar>
 
-      {/* Maintenance Records */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr>
-                <th className="text-left p-4 font-medium text-gray-900">Aircraft</th>
-                <th className="text-left p-4 font-medium text-gray-900">Type</th>
-                <th className="text-left p-4 font-medium text-gray-900">Description</th>
-                <th className="text-left p-4 font-medium text-gray-900">Priority</th>
-                <th className="text-left p-4 font-medium text-gray-900">Status</th>
-                <th className="text-left p-4 font-medium text-gray-900">Assigned To</th>
-                <th className="text-left p-4 font-medium text-gray-900">Schedule</th>
-                <th className="text-left p-4 font-medium text-gray-900">Est. Hours</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredRecords.map((record) => (
-                <tr key={record.id} className="hover:bg-gray-50">
-                  <td className="p-4">
-                    <p className="font-semibold text-gray-900">{record.aircraft.split(' ')[0]}</p>
-                    <p className="text-sm text-gray-600">{record.aircraft.split(' ').slice(1).join(' ')}</p>
-                  </td>
-                  <td className="p-4">
-                    <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
-                      {record.type}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <p className="text-gray-900">{record.description}</p>
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(record.priority)}`}>
-                      {record.priority}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center space-x-2">
-                      {getStatusIcon(record.status)}
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(record.status)}`}>
-                        {record.status}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <p className="text-gray-900">{record.assignedTo}</p>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">
-                        {new Date(record.scheduledDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                    {record.completedDate && (
-                      <div className="text-xs text-green-600 mt-1">
-                        Completed: {new Date(record.completedDate).toLocaleDateString()}
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <p className="text-gray-900">{record.estimatedHours}h</p>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        {/* Maintenance Records */}
+        <Panel headerText="Maintenance Records">
+          <AnalyticalTable
+            columns={maintenanceColumns}
+            data={maintenanceData}
+            visibleRows={10}
+            noDataText="No maintenance records found"
+            className="w-full"
+          />
+        </Panel>
+      </FlexBox>
 
-      {/* Add Maintenance Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-xl max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">Schedule Maintenance</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Aircraft</label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                  <option>N123AA (Boeing 737-800)</option>
-                  <option>N456BB (Airbus A320)</option>
-                  <option>N789CC (Boeing 777-300)</option>
-                  <option>N321DD (Airbus A330)</option>
-                </select>
-              </div>
+      {/* Add Maintenance Dialog */}
+      <Dialog
+        open={showAddModal}
+        headerText="Schedule Maintenance"
+        onAfterClose={() => setShowAddModal(false)}
+        className="w-full max-w-2xl"
+        resizable
+      >
+        <div className="p-6">
+          <Form>
+            <FormGroup titleText="Maintenance Details">
+              <FlexBox direction={FlexBoxDirection.Row} className="gap-4" wrap="Wrap">
+                <FormItem labelContent={<Label>Aircraft</Label>}>
+                  <Select>
+                    <Option>N123AA (Boeing 737-800)</Option>
+                    <Option>N456BB (Airbus A320)</Option>
+                    <Option>N789CC (Boeing 777-300)</Option>
+                    <Option>N321DD (Airbus A330)</Option>
+                  </Select>
+                </FormItem>
+                
+                <FormItem labelContent={<Label>Type</Label>}>
+                  <Select>
+                    <Option>Routine</Option>
+                    <Option>Scheduled</Option>
+                    <Option>Inspection</Option>
+                    <Option>Emergency</Option>
+                  </Select>
+                </FormItem>
+                
+                <FormItem labelContent={<Label>Priority</Label>}>
+                  <Select>
+                    <Option>Low</Option>
+                    <Option>Medium</Option>
+                    <Option>High</Option>
+                    <Option>Critical</Option>
+                  </Select>
+                </FormItem>
+                
+                <FormItem labelContent={<Label>Assigned Team</Label>}>
+                  <Select>
+                    <Option>Team Alpha</Option>
+                    <Option>Team Beta</Option>
+                    <Option>Team Gamma</Option>
+                    <Option>Team Delta</Option>
+                  </Select>
+                </FormItem>
+                
+                <FormItem labelContent={<Label>Scheduled Date</Label>}>
+                  <DatePicker />
+                </FormItem>
+                
+                <FormItem labelContent={<Label>Estimated Hours</Label>}>
+                  <Input type="Number" placeholder="Enter estimated hours" />
+                </FormItem>
+              </FlexBox>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                  <option>Routine</option>
-                  <option>Scheduled</option>
-                  <option>Inspection</option>
-                  <option>Emergency</option>
-                </select>
-              </div>
-              
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              <FormItem labelContent={<Label>Description</Label>}>
+                <TextArea
                   rows={3}
                   placeholder="Describe the maintenance task..."
-                ></textarea>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                  <option>Low</option>
-                  <option>Medium</option>
-                  <option>High</option>
-                  <option>Critical</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Assigned Team</label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                  <option>Team Alpha</option>
-                  <option>Team Beta</option>
-                  <option>Team Gamma</option>
-                  <option>Team Delta</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Scheduled Date</label>
-                <input
-                  type="date"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Estimated Hours</label>
-                <input
-                  type="number"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter estimated hours"
-                />
-              </div>
-            </div>
-            
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                Schedule Maintenance
-              </button>
-            </div>
-          </div>
+              </FormItem>
+            </FormGroup>
+          </Form>
         </div>
-      )}
+        <Bar
+          endContent={
+            <FlexBox className="gap-3">
+              <Button onClick={() => setShowAddModal(false)}>Cancel</Button>
+              <Button design="Emphasized">Schedule Maintenance</Button>
+            </FlexBox>
+          }
+        />
+      </Dialog>
     </div>
   );
 };

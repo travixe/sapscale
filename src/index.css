@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* SAP UI5 Theme Customizations */
+:root {
+  --sapBrandColor: #0070f3;
+  --sapHighlightColor: #0070f3;
+  --sapButton_Emphasized_Background: #0070f3;
+  --sapButton_Emphasized_BorderColor: #0070f3;
+}
+
+/* Custom styles for better integration */
+.ui5-content-density-compact {
+  font-size: 0.875rem;
+}
+
+/* Ensure proper spacing in UI5 components */
+ui5-card {
+  --_ui5_card_header_padding: 1rem;
+}
+
+ui5-panel {
+  --_ui5_panel_header_padding: 1rem;
+}

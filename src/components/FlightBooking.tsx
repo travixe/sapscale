@@ -56,7 +56,7 @@ export const FlightBooking: React.FC = () => {
   ];
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto h-full overflow-y-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Flight Booking</h1>
         <p className="text-gray-600">Search and book flights for passengers</p>

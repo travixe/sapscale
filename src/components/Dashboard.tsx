@@ -23,7 +23,7 @@ export const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto h-full overflow-y-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Operations Dashboard</h1>
         <p className="text-gray-600">Real-time overview of airline operations</p>

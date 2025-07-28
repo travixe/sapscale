@@ -150,7 +150,7 @@ export const FlightScheduling: React.FC = () => {
         </FlexBox>
       </FlexBox>
     ),
-    gate: <Badge>{flight.gate}</Badge>,
+    gate: <ui5-badge>{flight.gate}</ui5-badge>,
     passengers: (
       <FlexBox direction={FlexBoxDirection.Column} className="gap-1">
         <Text className="font-medium">{flight.passengers}/{flight.capacity}</Text>

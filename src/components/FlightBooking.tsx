@@ -12,7 +12,6 @@ import {
   FlexBoxJustifyContent,
   FlexBoxAlignItems,
   AnalyticalTable,
-  Badge,
   ObjectStatus,
   ValueState,
   Dialog,
@@ -201,9 +200,9 @@ export const FlightBooking: React.FC = () => {
     occupancy: (
       <FlexBox direction={FlexBoxDirection.Column} className="gap-1">
         <Text className="text-sm">{flight.bookedSeats}/{flight.totalSeats} seats</Text>
-        <ProgressIndicator 
-          value={(flight.bookedSeats / flight.totalSeats) * 100}
-          valueState={flight.bookedSeats / flight.totalSeats > 0.8 ? ValueState.Error : ValueState.Success}
+          <ui5-badge color-scheme="8">{flight.availableSeats} Available</ui5-badge>
+          <ui5-badge color-scheme="1">{flight.bookedSeats} Booked</ui5-badge>
+          <ui5-badge color-scheme="3">{flight.holdSeats} Hold</ui5-badge>
         />
       </FlexBox>
     ),

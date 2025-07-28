@@ -9,7 +9,6 @@ import {
   FlexBoxJustifyContent,
   FlexBoxAlignItems,
   AnalyticalTable,
-  Badge,
   ObjectStatus,
   ValueState,
   Icon,
@@ -37,28 +36,28 @@ export const Dashboard: React.FC = () => {
     { 
       flight: 'AA101', 
       route: 'NYC → LAX', 
-      status: <Badge colorScheme="8">On Time</Badge>, 
+      status: <ui5-badge color-scheme="8">On Time</ui5-badge>, 
       departure: '14:30', 
       gate: 'A12' 
     },
     { 
       flight: 'AA205', 
       route: 'LAX → CHI', 
-      status: <Badge colorScheme="1">Delayed</Badge>, 
+      status: <ui5-badge color-scheme="1">Delayed</ui5-badge>, 
       departure: '16:45', 
       gate: 'B8' 
     },
     { 
       flight: 'AA350', 
       route: 'CHI → MIA', 
-      status: <Badge colorScheme="6">Boarding</Badge>, 
+      status: <ui5-badge color-scheme="6">Boarding</ui5-badge>, 
       departure: '18:20', 
       gate: 'C15' 
     },
     { 
       flight: 'AA422', 
       route: 'MIA → NYC', 
-      status: <Badge colorScheme="8">On Time</Badge>, 
+      status: <ui5-badge color-scheme="8">On Time</ui5-badge>, 
       departure: '20:10', 
       gate: 'A5' 
     },

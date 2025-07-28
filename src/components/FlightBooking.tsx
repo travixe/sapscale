@@ -12,7 +12,6 @@ import {
   FlexBoxJustifyContent,
   FlexBoxAlignItems,
   AnalyticalTable,
-  Badge,
   ObjectStatus,
   ValueState,
   Dialog,
